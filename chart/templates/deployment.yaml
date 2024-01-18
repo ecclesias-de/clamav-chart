@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "basename" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels: {{- include "matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: {{- include "labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        checksum/entrypoint: {{ include (print $.Template.BasePath "/entrypoint.yaml") . | sha256sum }}
+    spec:
+      strategy:
+        type: Recreate
+      securityContext:
+        runAsUser: 100
+        runAsGroup: 101
+        fsGroup: 2000
+        seccompProfile:
+          type: RuntimeDefault
+      {{- if .Values.deployment.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.deployment.imagePullSecrets}}
+      - {{ toYaml . }}
+      {{- end }}
+      {{- end }}
+      containers:
+      - name: {{ .Chart.Name }}
+        image: {{ .Values.deployment.image }}:{{ .Chart.AppVersion }}_base
+        imagePullPolicy: IfNotPresent
+        {{- if .Values.debug.diagnoseMode.enabled}}
+        command: {{- toYaml .Values.debug.diagnoseMode.command  | nindent 12 }}
+        {{- end}}
+        {{- if .Values.deployment.resources }}
+        resources: {{- toYaml .Values.deployment.resources | nindent 12 }}
+        {{- end }}
+        ports:
+        - name: clamd
+          containerPort: 3310
+        {{- if .Values.debug.securityContext.enabled }}
+        securityContext:
+          runAsNonRoot: true
+          readOnlyRootFilesystem: true
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: [ALL]
+        {{- end }}
+        startupProbe:
+          exec:
+            command:
+              - clamdcheck.sh
+          failureThreshold: 30
+          periodSeconds: 10
+        livenessProbe:
+          exec:
+            command:
+              - clamdcheck.sh
+          initialDelaySeconds: 60
+          periodSeconds: 5
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/clamav
+        - name: run
+          mountPath: /run/clamav
+          subPath: run/clamav
+        - name: run
+          mountPath: /tmp
+          subPath: tmp
+        - name: config
+          mountPath: /etc/clamav/clamd.conf
+          subPath: clamd.conf
+          readOnly: true
+        - name: config
+          mountPath: /etc/clamav/freshclam.conf
+          subPath: freshclam.conf
+          readOnly: true
+        - name: entrypoint  
+          mountPath: /init
+          subPath: init
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: {{ template "basename" . }}
+      - name: data
+        persistentVolumeClaim:
+          claimName: {{ template "pvc" . }}
+      - name: run
+        emptyDir: {}
+      - name: entrypoint
+        configMap:
+          name: entrypoint-{{ template "basename" . }}
+          defaultMode: 0111

@@ -1,0 +1,35 @@
+deployment:
+  image: clamav/clamav
+  replicas: 2
+  resources:
+    limits:
+      # cpu: 1m / 1
+      memory: 4Gi
+    requests:
+      # cpu: 1m / 1
+      memory: 3Gi
+
+  imagePullSecrets:
+  # - name: secret-name
+
+service:
+  annotations: {}
+  type: ClusterIP
+
+persistent:
+  accessMode: ReadWriteMany
+  resources:
+    requests:
+      storage: 4Gi
+  storageClassName: 
+  existingPvc:
+
+debug:
+  diagnoseMode:
+    enabled: false
+    command:
+      - /bin/sh
+      - -c
+      - "echo diagnose mode: sleeping infinitely && tail -f /dev/null"
+  securityContext:
+    enabled: true
