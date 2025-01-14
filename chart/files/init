@@ -29,7 +29,7 @@ fi
 
 if [ "${CLAMAV_NO_CLAMD:-false}" != "true" ]; then
     echo "Starting ClamAV"
-    clamd --foreground &
+    clamd --foreground 2>&1 &
     while [ ! -S "/run/clamav/clamd.sock" ] && [ ! -S "/tmp/clamd.sock" ]; do
         if [ "${_timeout:=0}" -gt "${CLAMD_STARTUP_TIMEOUT:=1800}" ]; then
             echo
