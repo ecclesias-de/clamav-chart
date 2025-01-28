@@ -12,6 +12,10 @@ deployment:
   imagePullSecrets:
   # - name: secret-name
 
+metadata:
+  team:
+  name:
+
 service:
   annotations: {}
   type: ClusterIP

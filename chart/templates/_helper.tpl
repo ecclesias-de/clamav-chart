@@ -17,9 +17,12 @@ labels: {{ include "labels" . | nindent 4 }}
 {{- define "labels" -}}
 app.kubernetes.io/name: {{ .Chart.Name }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/managed-by: {{ .Release.Service }}
 app.kubernetes.io/version: {{ .Chart.AppVersion }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
 helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+# app.kubernetes.io/part-of:
+app.metaways.net/team: {{ .Values.metadata.team }}
+app.metaways.net/name: {{ .Values.metadata.name }}
 {{- end -}}
 
 {{/*
