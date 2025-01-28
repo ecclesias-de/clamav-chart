@@ -8,6 +8,12 @@ spec:
   replicas: {{ .Values.deployment.replicas }}
   selector:
     matchLabels: {{- include "matchLabels" . | nindent 6 }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      {{- if gt .Values.deployment.replicas 1 }}
+      maxSurge: 0
+      {{- end }}
   template:
     metadata:
       labels: {{- include "labels" . | nindent 8 }}
@@ -15,8 +21,6 @@ spec:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
         checksum/entrypoint: {{ include (print $.Template.BasePath "/entrypoint.yaml") . | sha256sum }}
     spec:
-      strategy:
-        type: Recreate
       securityContext:
         runAsUser: 100
         runAsGroup: 101
