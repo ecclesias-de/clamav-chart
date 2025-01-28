@@ -11,7 +11,7 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      {{- if gt .Values.deployment.replicas 1 }}
+      {{- if gt (int .Values.deployment.replicas) 1 }}
       maxSurge: 0
       {{- end }}
   template:
