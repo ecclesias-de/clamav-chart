@@ -8,7 +8,7 @@ stages:
   - package
 
 include:
-  - component: $CI_SERVER_FQDN/gitlabci-components/helm-build/build@1.0.0
+  - component: $CI_SERVER_FQDN/gitlabci-components/helm-build/build@1.1.0
     inputs:
       name: clamav
       registry_repo: ${CI_REGISTRY_IMAGE}/chart
