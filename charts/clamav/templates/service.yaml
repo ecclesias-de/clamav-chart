@@ -4,6 +4,9 @@ metadata:
   name: {{ include "basename" . }}
   namespace: {{ .Release.Namespace | quote }}
   labels: {{- include "labels" . | nindent 4 }}
+  {{- if .Values.service.labels }}
+  {{ .Values.service.labels | toYaml | nindent 4 }}
+  {{- end }}
   {{- if .Values.service.annotations }}
   annotations: {{ .Values.service.annotations | toYaml | nindent 4 }}
   {{- end }}

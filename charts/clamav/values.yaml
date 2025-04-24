@@ -18,6 +18,7 @@ metadata:
 
 service:
   annotations: {}
+  labels: {}
   type: ClusterIP
 
 persistent:
