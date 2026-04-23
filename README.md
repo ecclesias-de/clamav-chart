@@ -4,3 +4,7 @@ This version is intended for development and testing
 
 To build a release create a tag. With to following syntax: chart-<semantic version> eg. chart-2.0.0-rc1+build10
 This chart will also be pushed to the gitlab docker registry
+
+## 
+<img src="https://erzbistum-hamburg.de/_layout/EBHH_Logo_hoch.png" alt="erzbistum-hamburg logo" width="200"/></br>
+Mit freundlicher Unterstützung vom Erzbistum Hamburg
